@@ -8,11 +8,6 @@ export async function load({ parent, params, locals }) {
         throw redirect(303, `/${params.portal}`);
     }
 
-    const session = await locals.getSession();
-    if(session.user?.role !== 'admin') {
-        throw redirect(303, `/${params.portal}`);
-    }
-
     const { portal } = params;
 
     const feedbackPath = path.join(process.cwd(), "static", "uploads", portal, "feedback", "feedback.csv");

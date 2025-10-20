@@ -77,7 +77,7 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
   },
 
   pages: {
-    signIn: "/",
+    signIn: "/auth",
   },
 
   debug: NODE_ENV === "development",

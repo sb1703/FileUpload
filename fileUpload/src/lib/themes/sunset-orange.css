@@ -1,0 +1,73 @@
+:root[data-theme="sunset-orange"] {
+  --background: oklch(0.903 0.028 59);
+  --card: oklch(0.903 0.028 59);
+  --popover: oklch(0.903 0.028 59);
+  --sidebar: oklch(0.903 0.028 59);
+  --foreground: oklch(0.215 0 0);
+  --card-foreground: oklch(0.215 0 0);
+  --popover-foreground: oklch(0.215 0 0);
+  --sidebar-foreground: oklch(0.215 0 0);
+  --primary: oklch(0.466 0.126 47);
+  --sidebar-primary: oklch(0.466 0.126 47);
+  --primary-foreground: oklch(0.961 0 0);
+  --sidebar-primary-foreground: oklch(0.961 0 0);
+  --secondary: oklch(0.863 0.021 58);
+  --accent: oklch(0.863 0.021 58);
+  --sidebar-accent: oklch(0.863 0.021 58);
+  --secondary-foreground: oklch(0.218 0 0);
+  --accent-foreground: oklch(0.218 0 0);
+  --sidebar-accent-foreground: oklch(0.218 0 0);
+  --muted: oklch(0.815 0.021 53);
+  --muted-foreground: oklch(0.467 0.016 60);
+  --destructive: oklch(0.561 0.223 29);
+  --destructive-foreground: oklch(0.961 0 0);
+  --border: oklch(0.68 0.076 55);
+  --sidebar-border: oklch(0.68 0.076 55);
+  --ring: oklch(0.663 0.129 54);
+  --sidebar-ring: oklch(0.663 0.129 54);
+  --input: oklch(0.679 0.067 58);
+  --chart-1: oklch(0.466 0.126 47);
+  --chart-2: oklch(0.503 0.137 249);
+  --chart-3: oklch(0.769 0.161 103);
+  --chart-4: oklch(0.523 0.211 27);
+  --chart-5: oklch(0.725 0.205 149);
+  --radius: 0.5rem;
+}
+
+[data-theme="sunset-orange"].dark {
+  --background: oklch(0.238 0.013 52);
+  --card: oklch(0.238 0.013 52);
+  --popover: oklch(0.238 0.013 52);
+  --sidebar: oklch(0.238 0.013 52);
+  --foreground: oklch(0.962 0 0);
+  --card-foreground: oklch(0.962 0 0);
+  --popover-foreground: oklch(0.962 0 0);
+  --sidebar-foreground: oklch(0.962 0 0);
+  --primary: oklch(0.757 0.153 54);
+  --sidebar-primary: oklch(0.757 0.153 54);
+  --primary-foreground: oklch(0.961 0 0);
+  --sidebar-primary-foreground: oklch(0.961 0 0);
+  --secondary: oklch(0.327 0.04 53);
+  --accent: oklch(0.327 0.04 53);
+  --sidebar-accent: oklch(0.327 0.04 53);
+  --secondary-foreground: oklch(0.961 0 0);
+  --accent-foreground: oklch(0.961 0 0);
+  --sidebar-accent-foreground: oklch(0.961 0 0);
+  --muted: oklch(0.376 0.033 57);
+  --muted-foreground: oklch(0.685 0.02 57);
+  --destructive: oklch(0.613 0.228 27);
+  --destructive-foreground: oklch(0.961 0 0);
+  --border: oklch(0.351 0.052 53);
+  --sidebar-border: oklch(0.351 0.052 53);
+  --ring: oklch(0.423 0.094 52);
+  --sidebar-ring: oklch(0.423 0.094 52);
+  --input: oklch(0.351 0.047 55);
+  --chart-1: oklch(0.757 0.153 54);
+  --chart-2: oklch(0.76 0.127 242);
+  --chart-3: oklch(0.928 0.169 104);
+  --chart-4: oklch(0.673 0.205 20);
+  --chart-5: oklch(0.88 0.191 154);
+}
+
+/* Add Tailwind v4 @theme configuration as needed */
+/* Example: @theme { --color-primary: var(--primary); } */

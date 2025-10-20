@@ -5,7 +5,7 @@ import path from 'path';
 export const load = async (event) => {
 	const session = await event.locals.getSession();
 	if (!session) {
-		throw redirect(303, '/');
+		throw redirect(303, '/auth');
 	}
 
 	const isAdmin = session.user?.role === 'admin';

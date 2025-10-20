@@ -1,5 +1,6 @@
 import { mkdir, appendFile, access, writeFile, constants } from "fs/promises";
 import path from "path";
+import crypto from "crypto";
 
 /**
  * Ensures that a directory exists — creates it if not present.
@@ -10,6 +11,20 @@ async function ensureDirExists(dirPath) {
         await access(dirPath, constants.F_OK);
     } catch {
         await mkdir(dirPath, { recursive: true });
+    }
+}
+
+/**
+ * Ensures that the CSV file exists and contains the correct header row.
+ * @param {string} filePath
+ */
+async function ensureCsvHasHeader(filePath) {
+    const HEADER = `"id","email","date","feedback"\n`;
+
+    try {
+        await access(filePath);
+    } catch {
+        await writeFile(filePath, HEADER);
     }
 }
 
@@ -31,20 +46,14 @@ export async function POST({ request, locals }) {
         await ensureDirExists(uploadDir);
 
         const csvPath = path.join(uploadDir, "feedback.csv");
+        await ensureCsvHasHeader(csvPath);
 
-        // Add CSV header if file does not exist
-        try {
-            await access(csvPath);
-        } catch {
-            await writeFile(csvPath, `"email","portal","date","feedback"\n`);
-        }
-
+        const id = crypto.randomUUID();
         // Escape quotes and commas in feedback for safe CSV
         const sanitizedFeedback = feedback.replace(/"/g, '""');
         const date = new Date().toISOString();
-        const row = `"${email}","${portal}","${date}","${sanitizedFeedback}"\n`;
+        const row = `"${id}","${email}","${date}","${sanitizedFeedback}"\n`;
 
-        // Append new feedback
         await appendFile(csvPath, row);
 
         return new Response(

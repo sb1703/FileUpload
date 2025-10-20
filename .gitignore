@@ -1,0 +1,25 @@
+./fileUpload/node_modules
+
+# Output
+./fileUpload/.output
+./fileUpload/.vercel
+./fileUpload/.netlify
+./fileUpload/.wrangler
+./fileUpload/.svelte-kit
+./fileUpload/build
+
+# OS
+./fileUpload/.DS_Store
+./fileUpload/Thumbs.db
+
+# Env
+./fileUpload/.env
+./fileUpload/.env.*
+./fileUpload/!.env.example
+./fileUpload/!.env.test
+
+# Vite
+./fileUpload/vite.config.js.timestamp-*
+./fileUpload/vite.config.ts.timestamp-*
+
+./fileUpload/static/

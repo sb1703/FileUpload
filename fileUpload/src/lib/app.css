@@ -2,6 +2,12 @@
 
 @import "tw-animate-css";
 
+@import "./themes/modern-blue.css";
+@import "./themes/forest-green.css";
+@import "./themes/aquamarine-deep.css";
+@import "./themes/vivid-crimson.css";
+@import "./themes/sunset-orange.css";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
