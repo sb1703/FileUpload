@@ -1,9 +1,16 @@
 <script>
-import { Button } from "$lib/components/ui/button/index.js";
+import { fileManagerState } from "$lib/state/fileManagerState.svelte.js";
+import { page } from "$app/stores";
+import { get } from "svelte/store";
+import { onMount } from "svelte";
+import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
 import { Input } from "$lib/components/ui/input/index.js";
 import { Label } from "$lib/components/ui/label/index.js";
 
 import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
+import * as Dialog from "$lib/components/ui/dialog/index.js";
+import * as Breadcrumb from "$lib/components/ui/breadcrumb/index.js";
+import * as HoverCard from "$lib/components/ui/hover-card/index.js";
 
 import * as Alert from "$lib/components/ui/alert/index.js";
 import CheckCircle2Icon from "@lucide/svelte/icons/check-circle-2";
@@ -13,8 +20,12 @@ import * as Item from "$lib/components/ui/item/index.js";
 import { Spinner } from "$lib/components/ui/spinner/index.js";
 import { Progress } from "$lib/components/ui/progress/index.js";
 
+import DataTable from "./data-table/data-table.svelte";
+import { columns } from "./data-table/column.js";
+
 import { PUBLIC_MAIL_DOMAIN } from '$env/static/public';
 
+let { data } = $props();
 /** @type {File | null} */
 let file = $state(null);
 /** @type {string} */
@@ -30,30 +41,28 @@ let progress = $state(0);
 /** @type {boolean} */
 let dialogOpen = $state(false);
 
+/** @type {boolean} */
+let selectDialogOpen = $state(false);
+
+/** @type {string} */
+let selectedPath = $state("");
+
+$effect(() => {
+    if(fileManagerState.email) {
+        selectedPath = "";
+    }
+})
+
+function confirmFolderSelection() {
+    selectedPath = fileManagerState.currentPath;
+    selectDialogOpen = false;
+}
+
 /**
  * Reference to the active XMLHttpRequest (for cancellation)
  * @type {XMLHttpRequest | null}
  */
 let currentRequest = null;
-
-/**
-   * The user's email address used for passwordless authentication.
-   *
-   * @type {string}
-   * @description
-   * Bound to the email input field. The user must enter a valid email
-   * from the allowed domain (`PUBLIC_MAIL_DOMAIN`).
-   */
-let email = $state("");
-
-/** 
-   * Regex-based validation derived from email input and PUBLIC_MAIL_DOMAIN
-   * @type {boolean}
-   */
-let isValidDomain = $derived.by(() => {
-  const domainRegex = new RegExp(`^[a-zA-Z0-9._%+-]+@${PUBLIC_MAIL_DOMAIN.replace(".", "\\.")}$`);
-  return domainRegex.test(email);
-});
 
 /**
    * Upload the selected file
@@ -73,7 +82,7 @@ async function uploadFile() {
     try {
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("email", email);
+        formData.append("fullPath", encodeURIComponent(fileManagerState.fullPath));
 
         // Example with fetch + tracking upload progress
         const xhr = new XMLHttpRequest();
@@ -130,13 +139,73 @@ function cancelUpload() {
         currentRequest.abort();
     }
 }
+
+onMount(() => {
+    fileManagerState.email = "";
+});
 </script>
 
 
-<!-- File Input -->
-<Label for="file" class="text-2xl font-bold mb-4">Upload File</Label>
 
-<Input aria-invalid={!isValidDomain} id="email" type="email" placeholder={`johndoe@${PUBLIC_MAIL_DOMAIN}`} bind:value={email} class="max-w-xs mb-4" />
+<div class="max-w-ws mb-8">
+    <Label for="email" class="text-xl font-bold mb-2">Upload To</Label>
+    <Input aria-invalid={!fileManagerState.isValidDomain} id="email" type="email" placeholder={`johndoe@${PUBLIC_MAIL_DOMAIN}`} bind:value={fileManagerState.email} class="max-w-xs mb-1" />
+    {#if fileManagerState.email && !fileManagerState.isValidDomain}
+        <p class="text-sm text-red-500 mt-1">
+            Please enter a valid email address ending with <strong>@{PUBLIC_MAIL_DOMAIN}</strong>.
+        </p>
+    {:else}
+        <p class="text-sm text-gray-500">
+            Leave blank to upload <strong>for everyone</strong>.
+        </p>
+    {/if}
+</div>
+
+
+<div class="max-w-ws mb-8">
+    <Label for="folder" class="text-xl font-bold mb-2">Select Folder</Label>
+    <Dialog.Root bind:open={selectDialogOpen}>
+        <Dialog.Trigger onclick={() => fileManagerState.loadFolder($page.params.portal, "")} class={buttonVariants({ variant: "outline" })}>Select</Dialog.Trigger>
+        {#if selectedPath}
+            <p class="mt-2 text-sm">Selected Path: <strong>/Home{selectedPath}</strong></p>
+        {:else}
+            <p class="mt-2 text-sm">Selected Path: <strong>/Home</strong></p>
+        {/if}
+        <Dialog.Content class="!max-w-none w-[70vw] h-[90vh] flex flex-col overflow-hidden">
+            <Dialog.Header class="!flex-row justify-between items-center">
+                <Breadcrumb.Root>
+                    <Breadcrumb.List>
+                        <Breadcrumb.Item>
+                            <Breadcrumb.Link class="cursor-pointer hover:underline" onclick={() => fileManagerState.loadFolder($page.params.portal, "")}>Home</Breadcrumb.Link>
+                        </Breadcrumb.Item>
+                        {#each fileManagerState.currentPath.split("/").filter(Boolean) as part, i (i)}
+                            <Breadcrumb.Separator />
+                            <Breadcrumb.Item>
+                                <Breadcrumb.Link
+                                    class="cursor-pointer hover:underline"
+                                    onclick={() => {
+                                        fileManagerState.loadFolder($page.params.portal, fileManagerState.currentPath.split("/").filter(Boolean).slice(0, i + 1).join("/"));
+                                    }}
+                                >
+                                    {part}
+                                </Breadcrumb.Link>
+                            </Breadcrumb.Item>
+                        {/each}
+                    </Breadcrumb.List>
+                </Breadcrumb.Root>
+            </Dialog.Header>
+            <div class="grid gap-4 py-4">
+                <DataTable data={fileManagerState.items} columns={columns} />
+            </div>
+            <Dialog.Footer>
+                <Button onclick={confirmFolderSelection} type="submit">Select</Button>
+            </Dialog.Footer>
+        </Dialog.Content>
+    </Dialog.Root>
+</div>
+
+<!-- File Input -->
+<Label for="file" class="text-xl font-bold mb-2">Upload File</Label>
 <div class="flex items-center gap-2 w-full max-w-md">
     <div class="grid w-full max-w-sm items-center gap-1.5">
         <Input id="file" type="file" onchange={(e) => (file = e.target.files?.[0])} />
@@ -147,7 +216,11 @@ function cancelUpload() {
         </AlertDialog.Trigger>
         <AlertDialog.Content>
             <AlertDialog.Header>
-                <AlertDialog.Title >You want to upload this file to {isValidDomain ? email: "everyone"}?</AlertDialog.Title>
+                <AlertDialog.Title>
+                    You want to upload this file to 
+                    {fileManagerState.isValidDomain ? fileManagerState.email : "everyone"} 
+                    {selectedPath ? ` in /Home${selectedPath}` : " in /Home"}?
+                </AlertDialog.Title>
             </AlertDialog.Header>
             <AlertDialog.Footer>
                 <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>

@@ -3,6 +3,7 @@ import '../app.css';
 import '../lib/app.css';
 
 import { page } from "$app/stores";
+import { fileManagerState } from "$lib/state/fileManagerState.svelte.js";
 import ChevronLeftIcon from "@lucide/svelte/icons/chevron-left";
 import { Button } from "$lib/components/ui/button/index.js";
 import { ModeWatcher } from "mode-watcher";
@@ -24,6 +25,7 @@ let portal = $derived($page.params?.portal ?? "");
 let isMaterial = $derived($page.data?.isMaterial ?? false);
 let isHR = $derived($page.data?.isHR ?? false);
 let isAdmin = $derived($page.data?.isAdmin ?? false);
+let email = $derived($page.data?.session?.user?.email ?? "");
 </script>
 
 <nav class="flex justify-between items-center px-4 py-2 bg-background border-b border-border mb-4">
@@ -50,7 +52,8 @@ let isAdmin = $derived($page.data?.isAdmin ?? false);
       {#if isAdmin}
 	<Button variant="link" href="/{portal}/upload">Upload</Button>
       {/if}
-      <Button variant="link" href="/{portal}/files">Files</Button>
+      <Button variant="link" href="/{portal}/public" onclick={() => fileManagerState.loadHomeFolder($page.params.portal)}>Public</Button>
+      <Button variant="link" href="/{portal}/private" onclick={() => fileManagerState.loadHomeFolder($page.params.portal, email)}>Private</Button>
       <Button variant="link" href="/{portal}/feedback">Feedback</Button>
       <Button variant="link" href="/{portal}/feedback-report">Feedback Report</Button>
     </div>

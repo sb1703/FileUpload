@@ -2,6 +2,7 @@
 import { page } from "$app/stores";
 import { onMount } from "svelte";
 import { goto } from "$app/navigation";
+import { Toaster } from "$lib/components/ui/sonner/index.js";
 
 /**
    * Redirect user to home if no session is available
@@ -22,6 +23,7 @@ let { children } = $props();
 
 {#if $page.data?.session}
 	<main class="ml-6">
+		<Toaster />
 		{@render children()}
 	</main>
 {/if}

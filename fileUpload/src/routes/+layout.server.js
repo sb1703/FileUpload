@@ -1,4 +1,3 @@
-import { redirect } from '@sveltejs/kit';
 import fs from 'fs';
 import path from 'path';
 

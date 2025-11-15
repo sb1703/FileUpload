@@ -10,6 +10,23 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import * as HoverCard from "$lib/components/ui/hover-card/index.js";
   import Papa from "papaparse";
+  import { toast } from "svelte-sonner";
+
+  import CalendarIcon from "@lucide/svelte/icons/calendar";
+  import {
+    DateFormatter,
+    getLocalTimeZone,
+    fromDate,
+    parseDate
+  } from "@internationalized/date";
+  import { cn } from "$lib/utils.js";
+  import { buttonVariants } from "$lib/components/ui/button/index.js";
+  import { Calendar } from "$lib/components/ui/calendar/index.js";
+  import * as Popover from "$lib/components/ui/popover/index.js";
+
+  const df = new DateFormatter("en-US", {
+    dateStyle: "long"
+  });
 
   /**
    * @typedef {Object} File
@@ -52,45 +69,38 @@
         sno: i+1,
         id: row.id,
         email: row.email || "Unknown",
-        date: row.date ? new Date(row.date).toLocaleString("en-IN") : "Unknown",
+        date: row.date || "",
         feedback: row.feedback || "",
+        actions: row.actions || "",
+        date_of_action: row.date_of_action || "",
+        outcome: row.outcome || "",
+        dateOfActionValue: row.date_of_action ? fromDate(new Date(row.date_of_action)) : null,
       }));
     } catch (err) {
       console.error("Error loading feedback:", err);
     }
   });
 
+  $effect(() => {
+    feedbacks.forEach(fb => {
+      fb.date_of_action = fb.dateOfActionValue ? fb.dateOfActionValue.toDate(getLocalTimeZone()).toISOString() : "";
+    });
+  })
+
   async function saveFeedback(fb) {
     try {
+      const { dateOfActionValue, sno, ...rest } = fb;
       const res = await fetch(`feedback-report`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "save", feedback: fb })
+        body: JSON.stringify({ action: "save", feedback: rest })
       });
       const data = await res.json();
       if (!data.success) throw new Error("Failed to save feedback");
-      alert("Feedback saved!");
+      toast.success("Feedback saved!");
     } catch (err) {
       console.error(err);
-      alert("Error saving feedback");
-    }
-  }
-
-  async function deleteFeedback(fb) {
-    if (!confirm("Are you sure you want to delete this feedback?")) return;
-    try {
-      const res = await fetch(`feedback-report`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "delete", feedback: fb })
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error("Failed to delete feedback");
-      // Remove from frontend array
-      feedbacks = feedbacks.filter(f => f.id !== fb.id);
-    } catch (err) {
-      console.error(err);
-      alert("Error deleting feedback");
+      toast.error("Error saving feedback");
     }
   }
 </script>
@@ -116,6 +126,9 @@
         <Table.Head class="w-[1%]">Email</Table.Head>
         <Table.Head class="w-[1%]">Date</Table.Head>
         <Table.Head>Feedback</Table.Head>
+        <Table.Head>Actions</Table.Head>
+        <Table.Head class="w-[1%]">Date of Action</Table.Head>
+        <Table.Head>Outcome</Table.Head>
       </Table.Row>
     </Table.Header>
     <Table.Body>
@@ -132,33 +145,92 @@
             </HoverCard.Root>
           </Table.Cell>
           <Table.Cell>{fb.email}</Table.Cell>
-          <Table.Cell>{fb.date}</Table.Cell>
+          <Table.Cell>
+            <Popover.Root>
+              <Popover.Trigger
+                class={cn(
+                  buttonVariants({
+                    variant: "outline",
+                    class: "w-[280px] justify-start text-left font-normal"
+                  }),
+                  !fb.date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon />
+                {#if fb.date && !isNaN(new Date(fb.date))}
+                  {df.format(new Date(fb.date))}
+                {:else}
+                  Pick a date
+                {/if}
+              </Popover.Trigger>
+            </Popover.Root>
+          </Table.Cell>
           <Table.Cell>
             <Textarea
               bind:value={fb.feedback}
+              rows="2"
+              disabled
+            ></Textarea>
+          </Table.Cell>
+          <Table.Cell>
+            <Textarea
+              bind:value={fb.actions}
+              rows="2"
+              disabled={!isAdmin}
+            ></Textarea>
+          </Table.Cell>
+          <Table.Cell>
+            <Popover.Root>
+              <Popover.Trigger
+                class={cn(
+                  buttonVariants({
+                    variant: "outline",
+                    class: "w-[280px] justify-start text-left font-normal"
+                  }),
+                  !fb.date_of_action && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon />
+                {#if fb.date_of_action && !isNaN(new Date(fb.date_of_action))}
+                  {df.format(new Date(fb.date_of_action))}
+                {:else}
+                  Pick a date
+                {/if}
+              </Popover.Trigger>
+              {#if isAdmin}
+                <Popover.Content class="w-auto p-0">
+                  <Calendar
+                    type="single"
+                    bind:value={fb.dateOfActionValue}
+                  />
+                </Popover.Content>
+              {/if}
+            </Popover.Root>
+          </Table.Cell>
+          <Table.Cell>
+            <Textarea
+              bind:value={fb.outcome}
               rows="2"
               disabled={!isAdmin}
             ></Textarea>
           </Table.Cell>
           {#if isAdmin}
             <Table.Cell class="w-[1%]">
-              <!-- Save Button -->
-              <Button
-                variant="secondary"
-                size="icon"
-                onclick={() => saveFeedback(fb)}
-              >
-                <SaveIcon class="h-4 w-4" />
-              </Button>
-
-              <!-- Delete Button -->
-              <Button
-                variant="secondary"
-                size="icon"
-                onclick={() => deleteFeedback(fb)}
-              >
-                <Trash2Icon class="h-4 w-4" />
-              </Button>
+              <HoverCard.Root>
+                <HoverCard.Trigger class="cursor-pointer">
+                  <!-- Save Button -->
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    onclick={() => saveFeedback(fb)}
+                  >
+                    <SaveIcon class="h-4 w-4" />
+                  </Button>
+                </HoverCard.Trigger>
+                <HoverCard.Content class="w-[100%] text-center">
+                  Save
+                </HoverCard.Content>
+              </HoverCard.Root>
             </Table.Cell>
           {/if}
         </Table.Row>

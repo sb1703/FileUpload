@@ -23,7 +23,7 @@ services:
     build: ./fileUpload
     container_name: svelte_lansite
     ports:
-      - "5173:5173"
+      - "8080:5173"
     depends_on:
       - postgres
     env_file:

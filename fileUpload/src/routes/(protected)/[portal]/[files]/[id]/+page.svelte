@@ -24,10 +24,9 @@ const { file } = data;
 <!-- Display file inline -->
 <iframe
     src={file.url}
-    width="100%"
-    height="700rem"
+    class="w-full h-[700px]"
     title={`Preview of ${file.name}`}
 ></iframe>
 
 <!-- Optional download button -->
-<Button variant="link" href={file.url} download>Download</Button>
+<Button variant="link" href={file.url} download={file.name}>Download</Button>

@@ -21,13 +21,13 @@ export async function POST({ request, params }) {
     if (index === -1) return json({ success: false, message: "Row not found" });
 
     if (action === "save") {
-        parsed.data[index].feedback = feedback.feedback;
-    } else if (action === "delete") {
-        parsed.data.splice(index, 1);
+        parsed.data[index].actions = feedback.actions;
+        parsed.data[index].date_of_action = feedback.date_of_action;
+        parsed.data[index].outcome = feedback.outcome;
     }
 
     // Convert back to CSV
     const newCsv = Papa.unparse(parsed.data);
-    fs.writeFileSync(feedbackPath, newCsv, "utf-8");
+    fs.writeFileSync(feedbackPath, newCsv + "\n", "utf-8");
     return json({ success: true });
 }

@@ -1,25 +1,26 @@
-./fileUpload/node_modules
+fileUpload/node_modules/
 
 # Output
-./fileUpload/.output
-./fileUpload/.vercel
-./fileUpload/.netlify
-./fileUpload/.wrangler
-./fileUpload/.svelte-kit
-./fileUpload/build
+fileUpload/.output
+fileUpload/.vercel
+fileUpload/.netlify
+fileUpload/.wrangler
+fileUpload/.svelte-kit
+fileUpload/build
 
 # OS
-./fileUpload/.DS_Store
-./fileUpload/Thumbs.db
+fileUpload/.DS_Store
+fileUpload/Thumbs.db
 
 # Env
-./fileUpload/.env
-./fileUpload/.env.*
-./fileUpload/!.env.example
-./fileUpload/!.env.test
+fileUpload/.env
+fileUpload/.env.*
+!fileUpload/.env.example
+!fileUpload/.env.test
 
 # Vite
-./fileUpload/vite.config.js.timestamp-*
-./fileUpload/vite.config.ts.timestamp-*
+fileUpload/vite.config.js.timestamp-*
+fileUpload/vite.config.ts.timestamp-*
 
-./fileUpload/static/
+# Static folder
+fileUpload/static/
