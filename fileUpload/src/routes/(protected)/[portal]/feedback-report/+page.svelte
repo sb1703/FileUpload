@@ -128,7 +128,7 @@
         <Table.Head>Feedback</Table.Head>
         <Table.Head>Actions</Table.Head>
         <Table.Head class="w-[1%]">Date of Action</Table.Head>
-        <Table.Head>Outcome</Table.Head>
+        <Table.Head>Status (Open/Closed)</Table.Head>
       </Table.Row>
     </Table.Header>
     <Table.Body>
