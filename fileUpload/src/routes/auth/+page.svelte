@@ -8,7 +8,7 @@ import * as Alert from "$lib/components/ui/alert/index.js";
 import CheckCircle2Icon from "@lucide/svelte/icons/check-circle-2";
 import AlertCircleIcon from "@lucide/svelte/icons/alert-circle";
 
-import { PUBLIC_MAIL_DOMAIN } from '$env/static/public';
+import { PUBLIC_MAIL_DOMAIN, PUBLIC_DEV_AUTO_AUTH_EMAIL } from '$env/static/public';
 
 /**
    * The user's email address used for passwordless authentication.
@@ -69,6 +69,21 @@ let isValidDomain = $derived.by(() => {
 async function handleMagicLink() {
   error = undefined;
   success = undefined;
+
+  if (PUBLIC_DEV_AUTO_AUTH_EMAIL && email === PUBLIC_DEV_AUTO_AUTH_EMAIL) {
+    loading = true;
+    try {
+      await signIn("credentials", { email, redirectTo: "/" });
+      success = "Logged in as admin (dev auto-login)";
+    } catch (err) {
+      error = "Dev auto-login failed.";
+      console.error(err);
+    } finally {
+      loading = false;
+    }
+    return;
+  }
+
   if (!isValidDomain) {
     error = `Email must be a ${PUBLIC_MAIL_DOMAIN} address`;
     return;
@@ -79,7 +94,7 @@ async function handleMagicLink() {
     await signIn("email", { email, redirect: false });
     success = "Magic link sent! Check your email.";
   } catch (err) {
-    error = "We couldn’t send the magic link. Please check your connection and try again.";
+    error = "We couldn't send the magic link. Please check your connection and try again.";
     console.error("Failed to send magic link:", err);
   } finally {
     loading = false;
